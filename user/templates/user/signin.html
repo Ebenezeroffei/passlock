@@ -13,6 +13,7 @@
             border:5px solid rgba(255,255,255,0.7);
             top:-80px;
             left:calc((100% - 160px)/2);
+            background:white;
         }
         p{
             margin:auto;
@@ -21,7 +22,7 @@
 {% endblock %}
 {% block content %}
     <div class="container" style="position:relative;z-index:1">
-       <img src="{% static 'user\images\user.jpg' %}" alt="">
+       <img src="{% static 'user\images\user4.png' %}" alt="">
         <form action="." method="post" style="max-width:400px;margin:140px auto;padding-top:80px;">
             {% csrf_token %}
             <div class="form-group">
@@ -42,5 +43,25 @@
     <script>
         $('#id_username').attr('class','form-control');
         $('#id_password').attr('class','form-control');
+        
+        // Create a function that changes the profile pic when it finds a username being entered in the input field
+        let getUserProfilePic = () => {
+            $('input[id = id_username]').keyup(function(){
+                let username = $(this).val();
+                $.ajax({
+                    url: "{% url 'user:image_url' %}",
+                    data: {
+                        'username': username,
+                    },
+                    dateType: 'json',
+                    success: function(data){
+                        if(data["image_url"]){
+                            $('.container img').attr('src',data["image_url"]);  
+                        }
+                    },
+                })
+            })
+        }
+        getUserProfilePic() // Invoke the function
     </script>
 {% endblock %}

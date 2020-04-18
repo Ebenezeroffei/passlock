@@ -1,8 +1,48 @@
 {% extends 'home/base.html' %}
+{% load static %}
 
 
 {% block head %}
     <title>Home</title>
+    <style>
+        .ac{
+            border:thin solid transparent;
+        }
+        img{
+            width:40px;
+            height:100%;
+            background:rgba(0,0,0,.7);
+            padding: 10px 5px;
+            cursor:pointer;
+            transition:all 0.2s linear;
+            opacity:0;
+        }
+        img:nth-child(2){
+            float:right;
+        }
+        .ac_name{
+            color:rgba(0,0,0,.7);
+            display: block;
+            text-align:center;
+            width: calc(100% - 80px);
+            position:relative;
+            font-size:22px;
+            transition:all 0.2s linear;
+            border-top:thin solid rgba(0,0,0,.125);
+            border-bottom:thin solid rgba(0,0,0,.125);
+        }
+        .ac_name:hover{
+            text-decoration: none;
+            color: rgba(0,0,0,.7);
+        }
+        .ac_name span{
+            font-size:12px;
+            position:absolute;
+            left:1px;
+            bottom:1px;
+            
+        }
+    </style>
 {% endblock %}
 {% block content %}
     <div class="container" style="margin-top:60px;">
@@ -11,7 +51,41 @@
                 <p  class="alert alert-success text-center">{{ message }}</p>
             {% endfor %}
         {% endif %}
+        {% if accounts %}
+           <h3>Accounts</h3><hr/>
+                {% for account in accounts %}
+                    <div class="card ac" style="max-width:700px;overflow:hidden;flex-direction:row;margin:5px auto">
+                        <img src="{%  static 'home/images/align-left.png' %}" alt="Edit">
+                        <a href="" class=" ac_name">
+                            {{ account.account_name }}
+                            <span>Created On: {{ account.date_created }}</span>
+                        </a>
+                        <img src="{%  static 'home/images/delete.png' %}" alt="Delete">
+                    </div>
+                {% endfor %}
+        {% else %}
+           <div style="max-width:600px;margin:100px auto auto auto;">
+             <h3 class="text-center mt-5 text-muted">Sorry you have not added any accounts at the moment..</h3>
+             <a href="" class = 'btn btn-primary btn-block'>Add An Account.</a> 
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
 {% block javascript %}
+    <script>
+        // A function that does a new design when the list item has been hovered
+        let listItemHover = () => {
+            $('.ac').mouseenter(function(){
+                $(this).find('.ac_name').css({'background':'skyblue','color':'white'});
+                $(this).find('img').css('opacity','1');
+            })
+            $('.ac').mouseleave(function(){
+                $(this).find('.ac_name').css({'background':'white','color':'rgba(0,0,0,.7)'});
+                 $(this).find('img').css('opacity','0');
+
+            })
+        }
+        listItemHover();
+        
+    </script>
 {% endblock %}

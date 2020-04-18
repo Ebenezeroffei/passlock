@@ -121,8 +121,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
 LOGIN_REDIRECT_URL = 'passlock:home'
 LOGOUT_REDIRECT_URL = 'passlock:home'
+LOGIN_URL = 'user:signin'
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1026
