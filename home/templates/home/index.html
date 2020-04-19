@@ -7,19 +7,28 @@
     <style>
         .ac{
             border:thin solid transparent;
+            border-top:thin solid rgba(0,0,0,.125);
+            border-bottom:thin solid rgba(0,0,0,.125);
         }
-        img{
+        .ac img{
             width:40px;
             height:100%;
-            background:rgba(0,0,0,.7);
+            background:rgba(0,255,0,.5);
             padding: 10px 5px;
             cursor:pointer;
             transition:all 0.2s linear;
             opacity:0;
         }
-        img:nth-child(2){
-            float:right;
+        #del{
+			background:rgba(255,0,0,.5);
+
         }
+		#del:hover{
+			background:rgba(255,0,0,.8);
+		}
+		#edit:hover{
+			background:rgba(0,255,0,.8);
+		}
         .ac_name{
             color:rgba(0,0,0,.7);
             display: block;
@@ -28,8 +37,6 @@
             position:relative;
             font-size:22px;
             transition:all 0.2s linear;
-            border-top:thin solid rgba(0,0,0,.125);
-            border-bottom:thin solid rgba(0,0,0,.125);
         }
         .ac_name:hover{
             text-decoration: none;
@@ -55,12 +62,12 @@
            <h3>Accounts</h3><hr/>
                 {% for account in accounts %}
                     <div class="card ac" style="max-width:700px;overflow:hidden;flex-direction:row;margin:5px auto">
-                        <img src="{%  static 'home/images/align-left.png' %}" alt="Edit">
-                        <a href="" class=" ac_name">
+                        <img id="edit" src="{%  static 'home/images/align-left.png' %}" alt="Edit">
+                        <a href="{% url 'passlock:default_account_detail' account.pk %}" class=" ac_name">
                             {{ account.account_name }}
                             <span>Created On: {{ account.date_created }}</span>
                         </a>
-                        <img src="{%  static 'home/images/delete.png' %}" alt="Delete">
+                        <img id="del" src="{%  static 'home/images/delete.png' %}" alt="Delete">
                     </div>
                 {% endfor %}
         {% else %}
@@ -76,7 +83,7 @@
         // A function that does a new design when the list item has been hovered
         let listItemHover = () => {
             $('.ac').mouseenter(function(){
-                $(this).find('.ac_name').css({'background':'skyblue','color':'white'});
+                $(this).find('.ac_name').css({'background':'rgba(0,0,0,.7)','color':'white'});
                 $(this).find('img').css('opacity','1');
             })
             $('.ac').mouseleave(function(){

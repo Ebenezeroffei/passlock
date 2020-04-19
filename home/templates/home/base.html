@@ -6,23 +6,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="{%  static 'home/bootstrap.min.css' %}"/>
+    <style>
+		#avatar{
+			width:35px;
+			height:35px;
+			position:absolute;
+			top:0px;
+			border-radius:5px;
+			border: 1.5px solid rgba(255,255,255,.5);
+			background:rgba(255,255,255,.5);
+			padding:2px;
+		}
+	</style>
     {% block head %}
     {% endblock %}
 </head>
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark ">
-          <a class="navbar-brand" href="#">Navbar</a>
+          <a class="navbar-brand" href="{% url 'passlock:home' %}">Navbar</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item active">
-                <a class="nav-link" href="#">Home</a>
+                <a class="nav-link" href="{% url 'passlock:home' %}">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">New Account</a>
+                <a class="nav-link" href="#">+ Add Account</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" style="position:relative;" href="#">
+                	<img id="avatar" src="{{ user.profilepic.profile.url }}" alt=""><span style="margin-left:40px;">Hi {{ user.username }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'user:logout' %}">
+                	Logout
+                </a>
               </li>
             </ul>
           </div>
@@ -30,8 +52,8 @@
     </div>
     {% block content %}
     {% endblock %}
-    <script type="text/javascript" src="{% static 'home\bootstrap.bundle.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'home/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'home\bootstrap.bundle.min.js' %}"></script>
     {% block javascript %}
     {% endblock %}
 </body>

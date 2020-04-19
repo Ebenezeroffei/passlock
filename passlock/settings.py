@@ -125,7 +125,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 LOGIN_REDIRECT_URL = 'passlock:home'
-LOGOUT_REDIRECT_URL = 'passlock:home'
+LOGOUT_REDIRECT_URL = 'user:signin'
 LOGIN_URL = 'user:signin'
 
 EMAIL_HOST = 'localhost'

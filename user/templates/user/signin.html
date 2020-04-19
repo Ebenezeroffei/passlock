@@ -58,6 +58,9 @@
                         if(data["image_url"]){
                             $('.container img').attr('src',data["image_url"]);  
                         }
+						else{
+							$('.container img').attr('src',"{% static 'user/images/user4.png' %}");
+						}
                     },
                 })
             })
