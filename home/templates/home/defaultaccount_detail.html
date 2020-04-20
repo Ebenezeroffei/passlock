@@ -28,23 +28,22 @@
 					<h3>{{ object.account_name }}</h3>
 					<p class = 'text-info small ' >Created On: <span class = 'text-dark' >{{ object.date_created }}</span></p>
 					<p class = 'text-info small ' >Last Modified: <span class = 'text-dark' >{{ object.date_created }}</span></p>
+					<p>{{ object.get_time_elapsed }}</p>
 				</div>
 			</div><hr style = 'margin:auto;width:100%;'/>
 			<div class="card-body">
 				<h5>Account Details</h5>
-				<form action=".">
-					<div class="form-group">
-						<label for="id_username">{{ object.account_name }} Username</label>
-						<input type="text" disabled value="{{object.username}}" class="form-control">
-					</div>
-					<div class="form-group">
-						<label for="id_password">{{ object.account_name }} Password</label>
-						<input type="password" disabled value="{{object.username}}" class="form-control">
-					</div>
-					{{ object.test }}
-					<a href="{% url 'passlock:default_account_edit' object.pk %}" class = 'btn btn-block btn-success' id="edit-account">Edit Account Details</a>
-					<button id="delete-account" class = 'btn btn-block btn-danger'>Delete Account</button>
-				</form>
+				<div class="form-group">
+					<label for="id_username">{{ object.account_name }} Username</label>
+					<input type="text" disabled value="{{object.username}}" class="form-control">
+				</div>
+				<div class="form-group">
+					<label for="id_password">{{ object.account_name }} Password</label>
+					<input type="password" disabled value="{{object.password}}" class="form-control">
+				</div>
+				{{ object.test }}
+				<a href="{% url 'passlock:default_account_edit' object.pk %}" class = 'btn btn-block btn-success' id="edit-account">Edit Account Details</a>
+				<button id="delete-account" class = 'btn btn-block btn-danger'>Delete Account</button>
 			</div>
 		</div>		
 	</div>

@@ -37,7 +37,6 @@ class DefaultAccountEditView(LoginRequiredMixin,generic.UpdateView):
 class VerifyUserView(generic.View):
 	""" This verfies an existing user before he or she edits an account """
 	def get(self,request):
-		print("hmmm")
 		password = request.GET.get('password',None)
 		username = request.user.username
 		authenticate_user = authenticate(username = username,password = password)
