@@ -28,7 +28,6 @@
 					<h3>{{ object.account_name }}</h3>
 					<p class = 'text-info small ' >Created On: <span class = 'text-dark' >{{ object.date_created }}</span></p>
 					<p class = 'text-info small ' >Last Modified: <span class = 'text-dark' >{{ object.date_created }}</span></p>
-					<p>{{ object.get_time_elapsed }}</p>
 				</div>
 			</div><hr style = 'margin:auto;width:100%;'/>
 			<div class="card-body">
@@ -39,19 +38,67 @@
 				</div>
 				<div class="form-group">
 					<label for="id_password">{{ object.account_name }} Password</label>
-					<input type="password" disabled value="{{object.password}}" class="form-control">
+					<div class="input-group">
+						<input type="password" disabled value="{{object.password}}" class="form-control">
+						<div class="input-group-append">
+							<button id="show-or-hide" class="btn btn-outline-secondary">Show</button>
+						</div>
+					</div>
 				</div>
 				{{ object.test }}
 				<a href="{% url 'passlock:default_account_edit' object.pk %}" class = 'btn btn-block btn-success' id="edit-account">Edit Account Details</a>
-				<button id="delete-account" class = 'btn btn-block btn-danger'>Delete Account</button>
+				<button data-toggle='modal' data-target='#exampleModal' class = 'btn btn-block btn-danger'>Delete Account</button>
+			</div>
+		</div>
+		
+		<!--Modal-->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">
+							Delete {{object.account_name}} account
+						</h5>
+						<button class="close" type="button" data-dismiss='modal' aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						Are you sure you want to delete this account.
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary btn-sm" type="button" data-dismiss='modal'>Cancel</button>
+						<button class="btn btn-danger btn-sm" type="button" id="delete-account" >Delete</button>
+					</div>
+				</div>
 			</div>
 		</div>		
 	</div>
 {% endblock %}
 {% block javascript %}
 	<script>
-		$('#edit-account').click(function(){
-			
-		})
+		// A function that shows or hides a password
+		let showOrHide = () => {
+			$('#show-or-hide').click(function(){
+				if($(this).text() === 'Show'){
+					$(this).parent().parent().find('input[type = "password"]').attr('type','text');
+					$(this).text('Hide');
+				}
+				else{
+					$(this).parent().parent().find('input[type = "text"]').attr('type','password');
+					$(this).text('Show')
+				}
+			})
+		}
+		showOrHide() // Invoke function
+		
+		// A function that makes an ajax response to deletes an account
+		let deleteAccount = () => {
+			$('#delete-account').click(function(){
+				console.log("Delete")
+				let accountId = {{ object.id }}
+			})
+		}
+		deleteAccount() // Invoke function
 	</script>
 {% endblock %}

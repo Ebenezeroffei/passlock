@@ -32,11 +32,16 @@ class DefaultAccount(models.Model):
 	def get_absolute_url(self):
 		return reverse('passlock:default_account_detail',kwargs = {'pk':self.pk})
 	
-	def get_time_elapsed(self):
-#		days_elapsed = datetime.today() - datetime(self.date_created)
-#		print(days_elapsed)
-		return "Alright"
 	
 	def __str__(self):
 		return f"Default {self.account_name.capitalize()} Account"
+	
+class CustomFieldsForDefaultAccount(models.Model):
+	default_account = models.ForeignKey(DefaultAccount,on_delete=models.CASCADE)
+	field_name = models.CharField(max_length = 100)
+	field_type = models.CharField(max_length = 100)
+	field_value = models.CharField(max_length = 100)
+	
+	def __str__(self):
+		return f"{self.default_account.account_name}'s > {self.field_name}"
 	

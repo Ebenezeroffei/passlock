@@ -6,7 +6,7 @@
 {% endblock %}
 {% block content %}
 	<div class="container" style="margin-top:80px">
-		<div id="verification-container" style="max-width:400px;margin:auto">
+		<div id="verification-container" style="max-width:400px;margin:auto;display:none;">
 			<p class="text-info">You need to be verified as the actual user before you can edit the account.</p>
 			<div class="form-group">
 				<label for="password">Password:</label>
@@ -14,7 +14,7 @@
 			</div>
 			<button id="verify" type="button" class="btn btn-primary btn-block">Verify</button>
 		</div>
-		<form style="max-width:450px;margin:auto;opacity:0;" action="." method="post" class = 'mt-5 mb-5'>
+		<form style="max-width:450px;margin:auto;opacity:1;" action="." method="post" class = 'mt-5 mb-5'>
 			{% csrf_token %}
 			<div class="form-group">
 				<label for="{{ form.username.id_of_label }}">{{object.account_name}} {{ form.username.label}}</label>
@@ -22,17 +22,79 @@
 			</div>
 			<div class="form-group">
 				<label for="{{ form.password.id_of_label }}">{{object.account_name}} {{ form.password.label}}</label>
-				<input type="password" name="{{ form.password.label|lower }}"  id = '{{ form.password.id_for_label }}' value="{{ form.password.value }}" class="form-control"/>
+				<div class="input-group">
+					<input type="password" name="{{ form.password.label|lower }}"  id = '{{ form.password.id_for_label }}' value="{{ form.password.value }}" class="form-control"/>
+					<div class="input-group-append">
+						<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
+					</div>
+				</div>
 			</div>
 			<h5 style="margin:auto;" class="text-primary">Custom Fields</h5>
 			<span class="text-muted small">You can add custom fields if you want</span>
+			<!-- Check for custom fields for the account -->
+			{% if object.customfieldsfordefaultaccount_set.all %}
+				{% for custom_account in object.customfieldsfordefaultaccount_set.all %}
+					<div class="form-group">
+						<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
+						{% if custom_account.field_type.lower == 'password' %}
+							<div class="input-group">
+								<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+								<div class="input-group-append">
+									<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
+								</div>
+							</div>
+							{% else %}
+								<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+							{% endif %}
+					</div>
+				{% endfor %}
+			{% endif %}
 			<hr style = 'margin:auto;width:100%;'/>
 			<div class="btn-group mb-4 mt-1" style="width:100%">
-				<button id = 'add' type="button" class="btn btn-sm btn-dark">Add Field</button>
+				<button data-toggle = 'modal' data-target = '#addModal' type="button" class="btn btn-sm btn-dark">Add Field</button>
 				<button id = 'remove' type="button" class="btn btn-sm btn-danger">Remove Field</button>
 			</div>
 			<input type="submit" class="btn btn-primary btn-block" value="Save Changes">
 		</form>
+		
+		<!--Modal For Adding A New Field-->
+		<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="addModalLabel">
+							Add New Field
+						</h5>
+						<button class="close" type="button" data-dismiss='modal' aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="id_field_name">Field Name</label>
+							<input required id="id_field_name" type="text" placeholder="E.g. Phone Number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="id_field_type">Field Type</label>
+							<select class="form-control" name="field-type" id="id_field_type">
+								<option value="text">Text</option>
+								<option value="email">Email</option>
+								<option value="password">Password</option>
+								<option selected value="number">Number</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="id_field_value">Field Value</label>
+							<input type="text" class="form-control" id="id_field_value" required placeholder="E.g. +233271234567">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary btn-sm" type="button" data-dismiss='modal'>Cancel</button>
+						<button class="btn btn-danger btn-sm" type="button" id="add-field" >Add</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {% endblock %}
 {% block javascript %}
@@ -68,20 +130,95 @@
 				})
 			})
 		}
-		verifyUser() //Invoke function
-
+		//verifyUser() //Invoke function
+		
+		// A function that changes the input type based on what the user chooses when forming a custom field
+		let changeInputType = () => {
+			$('#id_field_type').click(function(){
+				let inputType = $(this).val();
+				$('#id_field_value').attr('type',inputType)
+			})
+		}
+		changeInputType(); // Invoke the function
+		
+		
 		// A function that add or deletes custom fields to an account
 		let createOrDeleteCustomFields =  () => {
+			// A function that makes an ajax response in order to add a custom field to a default account
+			{% comment %}
+			let ajaxRequestForCustomFields = (name,type,value,accountId) => {
+				$.ajax({
+					url: "{% url 'passlock:add_custom_field_to_default_account' %}",
+					data: {
+						name,
+						type,
+						value,
+						accountId,
+					},
+					dataType: 'json',
+				})
+			}
+			{% endcomment %}
 			// Create button
-			$("#add").click(function(){
-				console.log("Add");
+			$("#add-field").click(function(){
+				let fieldName = $('#id_field_name').val();
+				let fieldType = $('#id_field_type').val();
+				let fieldValue = $('#id_field_value').val();
+//				console.log(fieldName);
+//				console.log(fieldType);
+//				console.log(fieldValue);
+				if(fieldName && fieldValue){
+					if(fieldType !== 'password'){
+						$('form div.form-group').last().after(
+							`<div class="form-group">
+								<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
+								<input type="${fieldType}" name="${fieldName}" id = 'id_${fieldName}' value="${fieldValue}" class="form-control">
+							</div>`
+						);
+					}
+					else{
+						$('form div.form-group').last().after(
+							`<div class="form-group">
+								<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
+								<div class="input-group">
+									<input type="password" name="${fieldName}"  id = 'id_${fieldName}' value="${fieldValue}" class="form-control"/>
+									<div class="input-group-append">
+										<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
+									</div>
+								</div>
+							</div>`
+						);
+						//showOrHide();
+					}
+					$(this).attr('data-dismiss','modal');		 
+				}
 			})
 			
 			// Delete button
 			$("#remove").click(function(){
-				console.log("Remove");
+				let totalFormFields = $("form div.form-group").length;
+				if(totalFormFields > 2){
+					$('form div.form-group').last().slideUp(function(){
+						$(this).remove();
+					})
+				}
 			})
 		}
 		createOrDeleteCustomFields() //Invoke function 
+		
+		// A function that shows or hides a password
+		let showOrHide = () => {
+			$('.show-or-hide').click(function(){
+				if($(this).text() === 'Show'){
+					$(this).parent().parent().find('input[type = "password"]').attr('type','text');
+					$(this).text('Hide');
+				}
+				else{
+					$(this).parent().parent().find('input[type = "text"]').attr('type','password');
+					$(this).text('Show')
+				}
+			})
+		}
+		showOrHide() // Invoke function
 	</script>
 {% endblock %}

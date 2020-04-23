@@ -43,5 +43,4 @@ class VerifyUserView(generic.View):
 		data = {}
 		
 		data['user_status'] = True if authenticate_user else False
-		print(data)
 		return JsonResponse(data)
