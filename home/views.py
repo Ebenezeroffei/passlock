@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.views import generic
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponseRedirect
 from django.contrib.auth import authenticate
+from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -32,6 +33,15 @@ class DefaultAccountEditView(LoginRequiredMixin,generic.UpdateView):
 	fields = ['username','password']
 	template_name = 'home/defaultaccount_edit.html'
 	
+class DefaultAccountDeleteView(generic.View):
+	""" This class deletes a default account """
+	def dispatch(self,request,*args,**kwargs):
+		account_id = self.kwargs.get('pk')
+		account = get_object_or_404(DefaultAccount,id = account_id)
+		account.delete()
+		
+		return HttpResponseRedirect(reverse('passlock:home'))
+	
 	
 	
 class VerifyUserView(generic.View):
@@ -43,4 +53,23 @@ class VerifyUserView(generic.View):
 		data = {}
 		
 		data['user_status'] = True if authenticate_user else False
+		return JsonResponse(data)
+
+class CreateCustomFieldForDefaultAccount(generic.View):
+	""" This class creates a new custom field for a default account """
+	
+	def get(self,request,*args,**kwargs):
+		field_name = request.GET.get("name",None)
+		field_type = request.GET.get("type",None)
+		field_value = request.GET.get("value",None)
+		account_id = int(request.GET.get("accountId",None))
+		account = get_object_or_404(DefaultAccount,id = account_id)
+		account.customfieldsfordefaultaccount_set.create(
+			field_name = field_name,
+			field_type = field_type,
+			field_value = field_value,
+		)
+		
+		
+		data = {}
 		return JsonResponse(data)
