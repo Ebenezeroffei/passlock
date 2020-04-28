@@ -17,45 +17,51 @@
 		<form style="max-width:450px;margin:auto;opacity:1;" action="." method="post" class = 'mt-5 mb-5'>
 			{% csrf_token %}
 			<div class="form-group">
-				<label for="{{ form.username.id_of_label }}">{{object.account_name}} {{ form.username.label}}</label>
-				<input type="text" name="{{ form.username.label|lower }}" id = '{{ form.username.id_for_label }}' value="{{ form.username.value }}" class="form-control">
+				<label for="{{ form.account_name.id_of_label }}">Account Name</label>
+				<input required type="text" name="account_name" id = '{{ form.account_name.id_for_label }}' value="{% if form.account_name.value %}{{ form.account_name.value }}{% endif %}" class="form-control">
 			</div>
 			<div class="form-group">
-				<label for="{{ form.password.id_of_label }}">{{object.account_name}} {{ form.password.label}}</label>
+				<label for="{{ form.email.id_of_label }}">Account {{ form.email.label}}</label>
+				<input type="email" required name="{{ form.email.label|lower }}" id = '{{ form.email.id_for_label }}' value="{% if form.email.value %}{{ form.email.value }}{% endif %}" class="form-control">
+			</div>
+			<div class="form-group">
+				<label for="{{ form.password.id_of_label }}">Account {{ form.password.label}}</label>
 				<div class="input-group">
-					<input type="password" name="{{ form.password.label|lower }}"  id = '{{ form.password.id_for_label }}' value="{{ form.password.value }}" class="form-control"/>
+					<input type="password" required name="{{ form.password.label|lower }}"  id = '{{ form.password.id_for_label }}' value="{% if form.password.value %}{{ form.password.value }}{% endif %}" class="form-control"/>
 					<div class="input-group-append">
 						<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
 					</div>
 				</div>
 			</div>
-			<div class="custom">
-				<h5 style="margin:auto;" class="text-primary">Custom Fields</h5>
-				<span class="text-muted small">You can add custom fields if you want</span>
-				<!-- Check for custom fields for the account -->
-				{% if object.customfieldsfordefaultaccount_set.all %}
-					{% for custom_account in object.customfieldsfordefaultaccount_set.all %}
-						<div class="form-group">
-							<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
-							{% if custom_account.field_type.lower == 'password' %}
-								<div class="input-group">
-									<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
-									<div class="input-group-append">
-										<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
+			{% if form.account_name.value %}
+				<div class="custom">
+					<h5 style="margin:auto;" class="text-primary">Custom Fields</h5>
+					<span class="text-muted small">You can add custom fields if you want</span>
+					<!-- Check for custom fields for the account -->
+					{% if object.customfieldsfordefaultaccount_set.all %}
+						{% for custom_account in object.customfieldsfordefaultaccount_set.all %}
+							<div class="form-group" id = "{{custom_account.id}}">
+								<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
+								{% if custom_account.field_type.lower == 'password' %}
+									<div class="input-group">
+										<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+										<div class="input-group-append">
+											<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
+										</div>
 									</div>
-								</div>
-								{% else %}
-									<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
-								{% endif %}
-						</div>
-					{% endfor %}
-				{% endif %}
-			</div>
-			<hr style = 'margin:auto;width:100%;'/>
-			<div class="btn-group mb-4 mt-1" style="width:100%">
-				<button data-toggle = 'modal' data-target = '#addModal' type="button" class="btn btn-sm btn-dark">Add Field</button>
-				<button id = 'remove' type="button" class="btn btn-sm btn-danger">Remove Field</button>
-			</div>
+									{% else %}
+										<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+									{% endif %}
+							</div>
+						{% endfor %}
+					{% endif %}
+				</div>
+				<hr style = 'margin:auto;width:100%;'/>
+				<div class="btn-group mb-4 mt-1" style="width:100%">
+					<button data-toggle = 'modal' data-target = '#addModal' type="button" class="btn btn-sm btn-dark">Add Field</button>
+					<button id = 'remove' type="button" class="btn btn-sm btn-danger">Remove Field</button>
+				</div>
+			{% endif %}
 			<input type="submit" class="btn btn-primary btn-block" value="Save Changes">
 		</form>
 		
@@ -157,6 +163,9 @@
 						accountId,
 					},
 					dataType: 'json',
+					success: function(data){
+						$('form div.form-group').last().attr('id',data['custom_account_id'])
+					},
 				})
 			}
 			// Create button
@@ -164,9 +173,6 @@
 				let fieldName = $('#id_field_name').val();
 				let fieldType = $('#id_field_type').val();
 				let fieldValue = $('#id_field_value').val();
-//				console.log(fieldName);
-//				console.log(fieldType);
-//				console.log(fieldValue);
 				if(fieldName && fieldValue){
 					if(fieldType !== 'password'){
 						$('.custom').append(
@@ -188,7 +194,16 @@
 								</div>
 							</div>`
 						);
-						//showOrHide();
+						$('.show-or-hide').last().click(function(){
+							if($(this).text() === 'Show'){
+								$(this).parent().parent().find('input[type = "password"]').attr('type','text');
+								$(this).text('Hide');
+							}
+							else{
+								$(this).parent().parent().find('input[type = "text"]').attr('type','password');
+								$(this).text('Show')
+							}
+						})
 					}
 					// Clear the values
 					$('#id_field_name').val('');
@@ -202,12 +217,21 @@
 			// Delete button
 			$("#remove").click(function(){
 				let totalFormFields = $("form div.form-group").length;
-				if(totalFormFields > 2){
+				if(totalFormFields > 3){
 					$('form div.form-group').last().slideUp(function(){
+						let customAccountId = $(this).attr('id');
 						$(this).remove();
-					})
-				}
-			})
+						$.ajax({
+							url: "{% url 'passlock:delete_custom_account' %}",
+							data: {
+								customAccountId,
+							},
+							dataType: 'json',
+						})
+					}
+				)
+			}
+		})
 		}
 		createOrDeleteCustomFields() //Invoke function 
 		

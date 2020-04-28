@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from .encryption_decryption import Encryption,Decryption
-from .models import DefaultAccount
+from .models import DefaultAccount,CustomFieldsForDefaultAccount
 
 
 
@@ -28,10 +28,21 @@ class LandingView(LoginRequiredMixin,generic.ListView):
 class DefaultAccountDetailView(LoginRequiredMixin,generic.DetailView):
 	model = DefaultAccount
 	
+class DefaultAccountCreateView(LoginRequiredMixin,generic.CreateView):
+	model = DefaultAccount
+	fields = ['account_name','email','password']
+	template_name = 'home/defaultaccount_form.html'
+	
+	def form_valid(self,form,*args,**kewargs):
+		form.instance.user = self.request.user
+		return super().form_valid(form)
+	
 class DefaultAccountEditView(LoginRequiredMixin,generic.UpdateView):
 	model = DefaultAccount
-	fields = ['username','password']
-	template_name = 'home/defaultaccount_edit.html'
+	fields = ['account_name','email','password']
+	template_name = 'home/defaultaccount_form.html'
+	
+	
 	
 class DefaultAccountDeleteView(generic.View):
 	""" This class deletes a default account """
@@ -55,7 +66,7 @@ class VerifyUserView(generic.View):
 		data['user_status'] = True if authenticate_user else False
 		return JsonResponse(data)
 
-class CreateCustomFieldForDefaultAccount(generic.View):
+class CreateCustomFieldForDefaultAccountView(generic.View):
 	""" This class creates a new custom field for a default account """
 	
 	def get(self,request,*args,**kwargs):
@@ -64,12 +75,28 @@ class CreateCustomFieldForDefaultAccount(generic.View):
 		field_value = request.GET.get("value",None)
 		account_id = int(request.GET.get("accountId",None))
 		account = get_object_or_404(DefaultAccount,id = account_id)
-		account.customfieldsfordefaultaccount_set.create(
+		custom = CustomFieldsForDefaultAccount(
+			default_account = account,
 			field_name = field_name,
 			field_type = field_type,
 			field_value = field_value,
 		)
+		custom.save()
 		
 		
+		data = {
+			'custom_account_id': custom.id,
+		}
+		return JsonResponse(data)
+	
+class DeleteCustomFieldForDefaultAccountView(generic.View):
+	""" This class removes a custom field from a default account """
+	def get(self,request,*args,**kwargs):
+		# Use the id of the custom account to find the custom account
+		custom_account_id = int(request.GET.get('customAccountId',None))
+		custom_account = get_object_or_404(CustomFieldsForDefaultAccount,id = custom_account_id)
+		# Delete if from the database
+		custom_account.delete()
 		data = {}
+		
 		return JsonResponse(data)

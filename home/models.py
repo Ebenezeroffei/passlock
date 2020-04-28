@@ -24,7 +24,7 @@ class FirstLevelDecryption(models.Model):
 class DefaultAccount(models.Model):
 	user = models.ForeignKey(User,on_delete=models.CASCADE)
 	account_name = models.CharField(max_length = 100)
-	username = models.CharField(max_length  = 100)
+	email = models.EmailField(default = None)
 	password = models.CharField(max_length = 200)
 	date_created = models.DateTimeField(default = timezone.now)
 	date_modified = models.DateTimeField(default = timezone.now)

@@ -1,0 +1,2 @@
+- You can't have a custom field with the same field names
+
