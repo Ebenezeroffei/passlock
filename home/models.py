@@ -21,27 +21,25 @@ class FirstLevelDecryption(models.Model):
         return self.key
 	
 	
-class DefaultAccount(models.Model):
+class Account(models.Model):
 	user = models.ForeignKey(User,on_delete=models.CASCADE)
 	account_name = models.CharField(max_length = 100)
-	email = models.EmailField(default = None)
-	password = models.CharField(max_length = 200)
 	date_created = models.DateTimeField(default = timezone.now)
 	date_modified = models.DateTimeField(default = timezone.now)
 	
 	def get_absolute_url(self):
-		return reverse('passlock:default_account_detail',kwargs = {'pk':self.pk})
+		return reverse('passlock:account_detail',kwargs = {'pk':self.pk})
 	
 	
 	def __str__(self):
-		return f"Default {self.account_name.capitalize()} Account"
+		return f"{self.account_name.capitalize()} Account"
 	
-class CustomFieldsForDefaultAccount(models.Model):
-	default_account = models.ForeignKey(DefaultAccount,on_delete=models.CASCADE)
+class CustomFieldsForAccount(models.Model):
+	account = models.ForeignKey(Account,on_delete=models.CASCADE)
 	field_name = models.CharField(max_length = 100)
 	field_type = models.CharField(max_length = 100)
 	field_value = models.CharField(max_length = 100)
 	
 	def __str__(self):
-		return f"{self.default_account.account_name}'s > {self.field_name}"
+		return f"{self.account.account_name}'s > {self.field_name}"
 	

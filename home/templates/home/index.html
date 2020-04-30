@@ -62,10 +62,10 @@
            <h3>Accounts</h3><hr/>
                 {% for account in accounts %}
                     <div class="card ac" style="max-width:700px;overflow:hidden;flex-direction:row;margin:5px auto">
-                       <a href="{% url 'passlock:default_account_edit' account.pk %}">
+                       <a href="{% url 'passlock:account_edit' account.pk %}">
                        		<img id="edit" src="{%  static 'home/images/align-left.png' %}" alt="Edit">
                        </a>
-                        <a href="{% url 'passlock:default_account_detail' account.pk %}" class=" ac_name">
+                        <a href="{% url 'passlock:account_detail' account.pk %}" class=" ac_name">
                             {{ account.account_name }}
                             <span>Created On: {{ account.date_created }}</span>
                         </a>
@@ -89,7 +89,7 @@
 								</div>
 								<div class="modal-footer">
 									<button class="btn btn-secondary btn-sm" type="button" data-dismiss='modal'>Cancel</button>
-									<a href="{% url 'passlock:default_account_delete' account.pk %}" class="btn btn-danger btn-sm" >Delete</a>
+									<a href="{% url 'passlock:account_delete' account.pk %}" class="btn btn-danger btn-sm" >Delete</a>
 								</div>
 							</div>
 						</div>
@@ -98,7 +98,7 @@
         {% else %}
            <div style="max-width:600px;margin:100px auto auto auto;">
              <h3 class="text-center mt-5 text-muted">Sorry you have not added any accounts at the moment..</h3>
-             <a href="{% url 'passlock:default_account_create' %}" class = 'btn btn-primary btn-block'>Add An Account.</a> 
+             <a href="{% url 'passlock:account_create' %}" class = 'btn btn-primary btn-block'>Add An Account.</a> 
             </div>
         {% endif %}
     </div>

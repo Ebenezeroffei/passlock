@@ -14,32 +14,20 @@
 			</div>
 			<button id="verify" type="button" class="btn btn-primary btn-block">Verify</button>
 		</div>
-		<form style="max-width:450px;margin:auto;opacity:1;" action="." method="post" class = 'mt-5 mb-5'>
+		<form method="post" action="." style="max-width:450px;margin:auto;opacity:1;" class = 'mt-5 mb-5'>
 			{% csrf_token %}
 			<div class="form-group">
 				<label for="{{ form.account_name.id_of_label }}">Account Name</label>
-				<input required type="text" name="account_name" id = '{{ form.account_name.id_for_label }}' value="{% if form.account_name.value %}{{ form.account_name.value }}{% endif %}" class="form-control">
+				<input required type="text" name="account_name" id = '{{ form.account_name.id_for_label }}' value="{% if object %}{{ object.account_name }}{% endif %}" class="form-control">
 			</div>
-			<div class="form-group">
-				<label for="{{ form.email.id_of_label }}">Account {{ form.email.label}}</label>
-				<input type="email" required name="{{ form.email.label|lower }}" id = '{{ form.email.id_for_label }}' value="{% if form.email.value %}{{ form.email.value }}{% endif %}" class="form-control">
-			</div>
-			<div class="form-group">
-				<label for="{{ form.password.id_of_label }}">Account {{ form.password.label}}</label>
-				<div class="input-group">
-					<input type="password" required name="{{ form.password.label|lower }}"  id = '{{ form.password.id_for_label }}' value="{% if form.password.value %}{{ form.password.value }}{% endif %}" class="form-control"/>
-					<div class="input-group-append">
-						<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
-					</div>
-				</div>
-			</div>
-			{% if form.account_name.value %}
+			{% if not object %}
+				<button type="submit" class="btn btn-primary btn-block">Create Account</button>
+			{% endif %}
+			{% if object %}
 				<div class="custom">
-					<h5 style="margin:auto;" class="text-primary">Custom Fields</h5>
-					<span class="text-muted small">You can add custom fields if you want</span>
 					<!-- Check for custom fields for the account -->
-					{% if object.customfieldsfordefaultaccount_set.all %}
-						{% for custom_account in object.customfieldsfordefaultaccount_set.all %}
+					{% if object.customfieldsforaccount_set.all %}
+						{% for custom_account in object.customfieldsforaccount_set.all %}
 							<div class="form-group" id = "{{custom_account.id}}">
 								<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
 								{% if custom_account.field_type.lower == 'password' %}
@@ -62,7 +50,6 @@
 					<button id = 'remove' type="button" class="btn btn-sm btn-danger">Remove Field</button>
 				</div>
 			{% endif %}
-			<input type="submit" class="btn btn-primary btn-block" value="Save Changes">
 		</form>
 		
 		<!--Modal For Adding A New Field-->
@@ -112,7 +99,6 @@
 			$("form").slideUp('fast'); // Remove the form
 			$('#verify').click(function(){
 				let password = $('#password').val();
-				console.log("Hmmm")
 				$.ajax({
 					url: "{% url 'passlock:verify' %}",
 					data: {
@@ -155,7 +141,7 @@
 			// A function that makes an ajax response in order to add a custom field to a default account
 			let ajaxRequestForCustomFields = (name,type,value,accountId) => {
 				$.ajax({
-					url: "{% url 'passlock:add_custom_field_to_default_account' %}",
+					url: "{% url 'passlock:add_custom_field_to_account' %}",
 					data: {
 						name,
 						type,
@@ -217,7 +203,7 @@
 			// Delete button
 			$("#remove").click(function(){
 				let totalFormFields = $("form div.form-group").length;
-				if(totalFormFields > 3){
+				if(totalFormFields > 1){
 					$('form div.form-group').last().slideUp(function(){
 						let customAccountId = $(this).attr('id');
 						$(this).remove();

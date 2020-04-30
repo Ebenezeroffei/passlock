@@ -31,20 +31,6 @@
 				</div>
 			</div><hr style = 'margin:auto;width:100%;'/>
 			<div class="card-body">
-				<h5>Account Details</h5>
-				<div class="form-group">
-					<label for="id_username">{{ object.account_name }} Email</label>
-					<input type="text" disabled value="{{object.email}}" class="form-control">
-				</div>
-				<div class="form-group">
-					<label for="id_password">{{ object.account_name }} Password</label>
-					<div class="input-group">
-						<input type="password" disabled value="{{object.password}}" class="form-control">
-						<div class="input-group-append">
-							<button class="show-or-hide btn btn-outline-secondary">Show</button>
-						</div>
-					</div>
-				</div>
 				<!-- Check for custom fields for the account -->
 			{% if object.customfieldsfordefaultaccount_set.all %}
 				{% for custom_account in object.customfieldsfordefaultaccount_set.all %}
@@ -63,7 +49,7 @@
 					</div>
 				{% endfor %}
 			{% endif %}
-				<a href="{% url 'passlock:default_account_edit' object.pk %}" class = 'btn btn-block btn-success' id="edit-account">Edit Account Details</a>
+				<a href="{% url 'passlock:account_edit' object.pk %}" class = 'btn btn-block btn-success' id="edit-account">Edit Account Details</a>
 				<button data-toggle='modal' data-target='#exampleModal' class = 'btn btn-block btn-danger'>Delete Account</button>
 			</div>
 		</div>
@@ -85,7 +71,7 @@
 					</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary btn-sm" type="button" data-dismiss='modal'>Cancel</button>
-						<a href="{% url 'passlock:default_account_delete' object.pk %}" class="btn btn-danger btn-sm" >Delete</a>
+						<a href="{% url 'passlock:account_delete' object.pk %}" class="btn btn-danger btn-sm" >Delete</a>
 					</div>
 				</div>
 			</div>
@@ -112,7 +98,6 @@
 		// A function that makes an ajax response to deletes an account
 		let deleteAccount = () => {
 			$('#delete-account').click(function(){
-				console.log("Delete")
 				let accountId = {{ object.id }}
 			})
 		}
