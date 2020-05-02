@@ -1,0 +1,30 @@
+{% extends 'user/base.html' %}
+
+
+{% block head %}
+	<title>Edit {{user.username}}'s Profile</title>
+{% endblock %}
+{% block content %}
+	<div class="container" style="position:relative;z-index:2;">
+		<form enctype="multipart/form-data" action='.' style="max-width:400px;margin:20px auto auto auto;" method = 'post'>
+			{% csrf_token %}
+			{% for field in u_form %}
+				<div class="form-group">
+					{{field.label_tag}}
+					{{ field }}
+					<span class="small text-muted text-info">{{ field.help_text }}</span>
+				</div>
+			{% endfor %}
+			<div class="form-group">
+				<label for="">Profile Pic:</label>
+				<div class="input-group">
+					<div class="custom-file">
+						<input value="{{user.profilepic.profile.url}}" class="custom-file-input" type="file" id="id_profile" name="profile" accept="image/*">
+						<label for="{{p_form.profile.id_for_label}}" class="custom-file-label">Choose File</label>
+					</div>
+				</div>
+			</div>
+			<input type="submit" value="Save Changes" class=" mb-3 btn btn-primary btn-block">
+		</form>
+	</div>
+{% endblock %}

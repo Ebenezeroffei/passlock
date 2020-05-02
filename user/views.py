@@ -4,7 +4,9 @@ from django.contrib import messages
 from django.views.generic import View
 from django.http import HttpResponseRedirect,JsonResponse
 from django.contrib.auth.models import User
-from .forms import NewUserForm
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from .forms import NewUserForm,UserProfileEditForm,ProfilePicEditForm
 from .models import ProfilePic
 
 # Create your views here.
@@ -49,3 +51,42 @@ class GetProfilePicView(View):
         
         return JsonResponse(data)
         
+class UserProfileView(View):
+	template_name = 'user/profile.html'
+	
+	@method_decorator(login_required)
+	def dispatch(self,request,*args,**kwargs):
+		return render(request,self.template_name)
+	
+	
+class UserProfileEditView(View):
+	template_name = 'user/profile_edit.html'
+	form_class1 = UserProfileEditForm
+	form_class2 = ProfilePicEditForm
+	
+	def get(self,*args,**kwargs):
+		form1 = self.form_class1(instance = self.request.user)
+		form2 = self.form_class2(instance = self.request.user.profilepic)
+		context = {
+			'u_form':form1,
+			'p_form':form2,
+		}
+		return render(self.request,self.template_name,context)
+	
+	def post(self,*args,**kwargs):
+		form1 = self.form_class1(self.request.POST,instance = self.request.user)
+		form2 = self.form_class2(self.request.POST,self.request.FILES,instance = self.request.user.profilepic)
+		context = {
+			'u_form':form1,
+			'p_form':form2,
+		}
+		
+		if form1.is_valid() and form2.is_valid():
+			print(form1.cleaned_data)
+			print(form2.cleaned_data)
+			form1.save()
+			form2.save()
+			return HttpResponseRedirect(reverse('user:profile'))
+
+		return render(self.request,self.template_name,context)
+	

@@ -20,9 +20,6 @@
 				<label for="{{ form.account_name.id_of_label }}">Account Name</label>
 				<input required type="text" name="account_name" id = '{{ form.account_name.id_for_label }}' value="{% if object %}{{ object.account_name }}{% endif %}" class="form-control">
 			</div>
-			{% if not object %}
-				<button type="submit" class="btn btn-primary btn-block">Create Account</button>
-			{% endif %}
 			{% if object %}
 				<div class="custom">
 					<!-- Check for custom fields for the account -->
@@ -49,6 +46,11 @@
 					<button data-toggle = 'modal' data-target = '#addModal' type="button" class="btn btn-sm btn-dark">Add Field</button>
 					<button id = 'remove' type="button" class="btn btn-sm btn-danger">Remove Field</button>
 				</div>
+			{% endif %}
+			{% if not object %}
+				<button type="submit" class="btn btn-primary btn-block">Create Account</button>
+			{% else %}
+				<a href="{% url 'passlock:account_detail' object.pk %}" class="btn btn-block btn-primary">Save Changes</a>
 			{% endif %}
 		</form>
 		

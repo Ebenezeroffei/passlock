@@ -32,8 +32,8 @@
 			</div><hr style = 'margin:auto;width:100%;'/>
 			<div class="card-body">
 				<!-- Check for custom fields for the account -->
-			{% if object.customfieldsfordefaultaccount_set.all %}
-				{% for custom_account in object.customfieldsfordefaultaccount_set.all %}
+			{% if object.customfieldsforaccount_set.all %}
+				{% for custom_account in object.customfieldsforaccount_set.all %}
 					<div class="form-group">
 						<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
 						{% if custom_account.field_type.lower == 'password' %}

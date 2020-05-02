@@ -24,7 +24,7 @@
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark ">
-          <a class="navbar-brand" href="{% url 'passlock:home' %}">Navbar</a>
+          <a class="navbar-brand" href="{% url 'passlock:home' %}">Passlock</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -37,7 +37,7 @@
                 <a class="nav-link" href="{% url 'passlock:account_create' %}">+ Add Account</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" style="position:relative;" href="#">
+                <a class="nav-link" style="position:relative;" href="{% url 'user:profile' %}">
                 	<img id="avatar" src="{{ user.profilepic.profile.url }}" alt=""><span style="margin-left:40px;">Hi {{ user.username }}</span>
                 </a>
               </li>
