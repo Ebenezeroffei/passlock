@@ -1,8 +1,4 @@
-# Imports
-from django.shortcuts import get_object_or_404
-import string
-from .models import FirstLevelDecryption 
-from .models import FirstLevelEncryption 
+
 
 class Encryption:
     """ This class contains algorithms that will encrypt a user's password """

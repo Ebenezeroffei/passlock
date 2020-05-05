@@ -38,14 +38,14 @@
 						<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
 						{% if custom_account.field_type.lower == 'password' %}
 							<div class="input-group">
-								<input disabled type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+								<input disabled type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.decrypt_password }}" class="form-control">
 								<div class="input-group-append">
 									<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
 								</div>
 							</div>
-							{% else %}
-								<input disabled type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
-							{% endif %}
+						{% else %}
+							<input disabled type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+						{% endif %}
 					</div>
 				{% endfor %}
 			{% endif %}

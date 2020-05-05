@@ -29,14 +29,14 @@
 								<label for="id_custom_field{{forloop.counter}}">{{object.account_name}} {{ custom_account.field_name }}</label>
 								{% if custom_account.field_type.lower == 'password' %}
 									<div class="input-group">
-										<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+										<input disabled type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.decrypt_password }}" class="form-control">
 										<div class="input-group-append">
 											<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
 										</div>
 									</div>
-									{% else %}
-										<input type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
-									{% endif %}
+								{% else %}
+									<input disabled type="{{custom_account.field_type}}" name="custom_field{{forloop.counter}}" id = 'id_custom_field{{forloop.counter}}' value="{{ custom_account.field_value }}" class="form-control">
+								{% endif %}
 							</div>
 						{% endfor %}
 					{% endif %}
@@ -81,8 +81,10 @@
 							</select>
 						</div>
 						<div class="form-group">
-							<label for="id_field_value">Field Value</label>
+							<label for="id_field_value">Field Value</label><br/>
+							<span id="error" class="small text-danger"></span>
 							<input type="text" class="form-control" id="id_field_value" required placeholder="E.g. +233271234567">
+							<span id="help" class="small text-info">Enter a valid number</span>
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -133,6 +135,8 @@
 			$('#id_field_type').click(function(){
 				let inputType = $(this).val();
 				$('#id_field_value').attr('type',inputType)
+				$('#help').text(`Enter a valid ${inputType}`);
+				$('#error').text("");
 			})
 		}
 		changeInputType(); // Invoke the function
@@ -140,6 +144,10 @@
 		
 		// A function that add or deletes custom fields to an account
 		let createOrDeleteCustomFields =  () => {
+			// Regex for email and number
+			let emailRegex = /^[a-zA-Z\d]+@[a-z]+\.(com|org)(\.[a-z]+)?$/;
+			let numberRegex = /^\d+$/;
+			
 			// A function that makes an ajax response in order to add a custom field to a default account
 			let ajaxRequestForCustomFields = (name,type,value,accountId) => {
 				$.ajax({
@@ -162,43 +170,52 @@
 				let fieldType = $('#id_field_type').val();
 				let fieldValue = $('#id_field_value').val();
 				if(fieldName && fieldValue){
-					if(fieldType !== 'password'){
-						$('.custom').append(
-							`<div class="form-group">
-								<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
-								<input type="${fieldType}" name="${fieldName}" id = 'id_${fieldName}' value="${fieldValue}" class="form-control">
-							</div>`
-						);
+					if(fieldType === 'email' && emailRegex.test(fieldValue) || fieldType === 'number' && numberRegex.test(fieldValue) || fieldType === 'text' || fieldType === 'password' ){
+						if(fieldType !== 'password'){
+							$('.custom').append(
+								`<div class="form-group">
+									<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
+									<input disabled type="${fieldType}" name="${fieldName}" id = 'id_${fieldName}' value="${fieldValue}" class="form-control">
+								</div>`
+							);
+						}
+						else{
+							$('.custom').append(
+								`<div class="form-group">
+									<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
+									<div class="input-group">
+										<input disabled type="password" name="${fieldName}"  id = 'id_${fieldName}' value="${fieldValue}" class="form-control"/>
+										<div class="input-group-append">
+											<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
+										</div>
+									</div>
+								</div>`
+							);
+							$('.show-or-hide').last().click(function(){
+								if($(this).text() === 'Show'){
+									$(this).parent().parent().find('input[type = "password"]').attr('type','text');
+									$(this).text('Hide');
+								}
+								else{
+									$(this).parent().parent().find('input[type = "text"]').attr('type','password');
+									$(this).text('Show')
+								}
+							})
+						}
+						// Clear the values
+						$('#id_field_name').val('');
+						$('#id_field_type').val('number');
+						$('#id_field_value').val('');
+						ajaxRequestForCustomFields(fieldName,fieldType,fieldValue,{{object.id}})
+						$(this).attr('data-dismiss','modal');
+						$('#help').text(`Enter a valid number`);
+						$('#error').text('');
 					}
 					else{
-						$('.custom').append(
-							`<div class="form-group">
-								<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
-								<div class="input-group">
-									<input type="password" name="${fieldName}"  id = 'id_${fieldName}' value="${fieldValue}" class="form-control"/>
-									<div class="input-group-append">
-										<button type="button" class=" show-or-hide btn btn-outline-secondary">Show</button>
-									</div>
-								</div>
-							</div>`
-						);
-						$('.show-or-hide').last().click(function(){
-							if($(this).text() === 'Show'){
-								$(this).parent().parent().find('input[type = "password"]').attr('type','text');
-								$(this).text('Hide');
-							}
-							else{
-								$(this).parent().parent().find('input[type = "text"]').attr('type','password');
-								$(this).text('Show')
-							}
-						})
+						$('#help').text(`Enter a valid ${fieldType}`);
+						$('#error').text(`Invalid ${fieldType}`);
 					}
-					// Clear the values
-					$('#id_field_name').val('');
-					$('#id_field_type').val('number');
-					$('#id_field_value').val('');
-					ajaxRequestForCustomFields(fieldName,fieldType,fieldValue,{{object.id}})
-					$(this).attr('data-dismiss','modal');		 
+							 
 				}
 			})
 			

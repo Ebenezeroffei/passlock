@@ -8,6 +8,7 @@
 	<div class="container" style="position:relative;z-index:2;">
 		<form enctype="multipart/form-data" action='.' style="max-width:400px;margin:20px auto auto auto;" method = 'post'>
 			{% csrf_token %}
+			{{f}}
 			{% for field in u_form %}
 				<div class="form-group">
 					{{field.label_tag}}

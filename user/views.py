@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect,JsonResponse
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import NewUserForm,UserProfileEditForm,ProfilePicEditForm
 from .models import ProfilePic
 
@@ -59,7 +60,7 @@ class UserProfileView(View):
 		return render(request,self.template_name)
 	
 	
-class UserProfileEditView(View):
+class UserProfileEditView(LoginRequiredMixin,View):
 	template_name = 'user/profile_edit.html'
 	form_class1 = UserProfileEditForm
 	form_class2 = ProfilePicEditForm
@@ -82,8 +83,6 @@ class UserProfileEditView(View):
 		}
 		
 		if form1.is_valid() and form2.is_valid():
-			print(form1.cleaned_data)
-			print(form2.cleaned_data)
 			form1.save()
 			form2.save()
 			return HttpResponseRedirect(reverse('user:profile'))
