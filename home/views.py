@@ -4,6 +4,7 @@ from django.http import JsonResponse,HttpResponseRedirect
 from django.contrib.auth import authenticate
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from .encryption_decryption import Encryption,Decryption
@@ -52,7 +53,21 @@ class AccountEditView(generic.View):
 		account_id = int(self.kwargs.get('pk'))
 		account = get_object_or_404(Account,id = account_id)
 		context = {'object':account}
-		
+		if request.method == 'POST':
+			account_name = request.POST.get('account_name')
+			account.account_name = account_name
+			account.date_modified = timezone.now()
+			account.save()
+			# Get the values in the custom fields
+			custom_account_data = [ value for key,value in request.POST.items() if key.startswith('custom_field')]
+			# Modify and save the values in the custom fields
+			for num,custom in enumerate(account.customfieldsforaccount_set.all()):
+				custom.field_value = custom_account_data[num]
+				custom.save()
+			custom = [c.field_value for c in account.customfieldsforaccount_set.all()]
+			# Redirect to the detail page
+			return HttpResponseRedirect(reverse('passlock:account_detail',kwargs = {'pk':account.pk}))
+			
 		return render(request,self.template_name,context)
 	
 	
@@ -85,7 +100,18 @@ class CreateCustomFieldForAccountView(generic.View):
 	def get(self,request,*args,**kwargs):
 		field_name = request.GET.get("name",None)
 		field_type = request.GET.get("type",None)
-		field_value = request.GET.get("value",None)
+		encrypted_field_value = request.GET.get("value",None)
+		# Get the encrypted field value
+		values = encrypted_field_value.split('-')[0]
+		keys = encrypted_field_value.split('-')[1]
+		field_value = ""
+		count = 0
+		# Decrypt it
+		for i in keys:
+			if count < len(values):
+				field_value += values[count]
+				count += int(i) + 1
+			
 		account_id = int(request.GET.get("accountId",None))
 		account = get_object_or_404(Account,id = account_id)
 		custom = CustomFieldsForAccount(
@@ -95,7 +121,6 @@ class CreateCustomFieldForAccountView(generic.View):
 			field_value = field_value,
 		)
 		custom.save()
-		
 		
 		data = {
 			'custom_account_id': custom.id,
