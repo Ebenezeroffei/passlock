@@ -2,6 +2,7 @@ from django.shortcuts import render,get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.views.generic import View
+from django.contrib.auth import authenticate
 from django.http import HttpResponseRedirect,JsonResponse
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
@@ -89,3 +90,22 @@ class UserProfileEditView(LoginRequiredMixin,View):
 
 		return render(self.request,self.template_name,context)
 	
+	
+class ExtensionVerifyUserView(View):
+	def get(self,request,*args,**kwargs):
+		username = request.GET.get('username')
+		password = request.GET.get('password')
+		print(username)
+		print(password)
+		data = {}
+		user = authenticate(username = username,password = password)
+		if user:
+			data['status'] = True
+			data['first_name'] = user.first_name
+			data['last_name'] = user.last_name
+			data['number_of_accounts'] = user.account_set.count()
+			data['img_url'] = user.profilepic.profile.url
+		else:
+			data['status'] = False
+		
+		return JsonResponse(data)

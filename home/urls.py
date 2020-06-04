@@ -10,5 +10,6 @@ urlpatterns = [
  	path('account/create/',home_views.AccountCreateView.as_view(),name = 'account_create'),
  	path('user/verify/',home_views.VerifyUserView.as_view(),name = 'verify'),
  	path('account/create-custom-field-for-account/',home_views.CreateCustomFieldForAccountView.as_view(),name = 'add_custom_field_to_account'),
+ 	path('account/extension/create-custom-field-for-account/',home_views.CreateCustomeFieldForAccountExtensionView.as_view(),name = 'extension_add_custom_field_to_account'),
  	path('account/delete-custom-field-for-account/',home_views.DeleteCustomFieldForAccountView.as_view(),name = 'delete_custom_account'),
 ]

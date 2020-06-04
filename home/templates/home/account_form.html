@@ -18,7 +18,12 @@
 			{% csrf_token %}
 			<div class="form-group">
 				<label for="{{ form.account_name.id_of_label }}">Account Name</label>
-				<input required type="text" name="account_name" id = '{{ form.account_name.id_for_label }}' value="{% if object %}{{ object.account_name }}{% endif %}" class="form-control">
+				<input required type="text" name="account_name" id = '{{ form.account_name.id_for_label }}' value="{% if object %}{{ object.account_name }}{% else %}{{acc}}{% endif %}" class="form-control">
+				{% if messages %}
+					{% for message in messages %}
+						<p class = 'text-danger small'>{{ message }}</p>
+					{% endfor %}
+				{% endif %}
 			</div>
 			{% if object %}
 				<div class="custom">
@@ -50,9 +55,6 @@
 			{% if not object %}
 				<button type="submit" class="btn btn-primary btn-block">Create Account</button>
 			{% else %}
-				{% comment %}
-				<a href="{% url 'passlock:account_detail' object.pk %}" class="btn btn-block btn-primary">Save Changes</a>
-				{% endcomment %}
 				<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
 			{% endif %}
 		</form>
@@ -73,6 +75,7 @@
 						<div class="form-group">
 							<label for="id_field_name">Field Name</label>
 							<input required id="id_field_name" type="text" placeholder="E.g. Phone Number" class="form-control">
+							<p id="double-custom-field" class="text-danger small"></p>
 						</div>
 						<div class="form-group">
 							<label for="id_field_type">Field Type</label>
@@ -167,7 +170,7 @@
 				encWord += encLetter;
 			}
 			encWord += `-${countAdditions}`;
-			console.log(encWord)
+//			console.log(encWord)
 			return encWord;
 		}
 			
@@ -192,13 +195,22 @@
 				let fieldName = $('#id_field_name').val();
 				let fieldType = $('#id_field_type').val();
 				let fieldValue = $('#id_field_value').val();
+				let customFields = [];
+				let accountName = $('form div.form-group input').eq(0).val();
+				$(this).removeAttr('data-dismiss');
+				// Get all the labels in the form
+				$('form div.form-group').each(function(){
+					if($(this).find('label').text().startsWith(accountName)){
+						customFields.push($(this).find('label').text().split(' ')[1].trim())
+					}
+				})
 				if(fieldName && fieldValue){
-					if(fieldType === 'email' && emailRegex.test(fieldValue) || fieldType === 'number' && numberRegex.test(fieldValue) || fieldType === 'text' || fieldType === 'password' ){
+					if((fieldType === 'email' && emailRegex.test(fieldValue) || fieldType === 'number' && numberRegex.test(fieldValue) || fieldType === 'text' || fieldType === 'password') && !customFields.includes(fieldName) ){
 						let formGroupCount = $('form div.form-group');
 						if(fieldType !== 'password'){
 							$('.custom').append(
 								`<div class="form-group">
-									<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
+									<label for="id_${fieldName}">{{object.account_name}} ${capitalizeString(fieldName)}</label>
 									<input type="${fieldType}" name="custom_field${formGroupCount.length}" id = 'id_${fieldName}' value="${fieldValue}" class="form-control">
 								</div>`
 							);
@@ -206,7 +218,7 @@
 						else{
 							$('.custom').append(
 								`<div class="form-group">
-									<label for="id_${fieldName}">{{object.account_name}} ${fieldName}</label>
+									<label for="id_${fieldName}">{{object.account_name}} ${capitalizeString(fieldName)}</label>
 									<div class="input-group">
 										<input type="password" name="custom_field${formGroupCount.length}"  id = 'id_${fieldName}' value="${fieldValue}" class="form-control"/>
 										<div class="input-group-append">
@@ -234,10 +246,17 @@
 						$(this).attr('data-dismiss','modal');
 						$('#help').text(`Enter a valid number`);
 						$('#error').text('');
+						$('#double-custom-field').text('');
 					}
 					else{
 						$('#help').text(`Enter a valid ${fieldType}`);
-						$('#error').text(`Invalid ${fieldType}`);
+						// Checks if the custom field already exists
+						if(customFields.includes(fieldName)){
+							$('#double-custom-field').text('The custom field you are trying to add already exist for this account.');
+						}
+						else{
+							$('#error').text(`Invalid ${fieldType}`);
+						}
 					}
 							 
 				}
@@ -278,6 +297,11 @@
 			})
 		}
 		showOrHide() // Invoke function
+		
+		// A function that capitalizes a word
+		let capitalizeString = (word) => {
+			return `${word[0].toUpperCase()}${word.substr(1)}`;
+		}
 		
 	</script>
 {% endblock %}
